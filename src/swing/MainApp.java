@@ -1,13 +1,12 @@
 package swing;
 
-import java.awt.CardLayout;
+import java.awt.CardLayout; 
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Image;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -25,11 +24,13 @@ import javax.swing.border.EmptyBorder;
 public class MainApp extends JFrame implements ActionListener {
 	JButton btnOpen;
 	
-	JPanel panelTotal, loginPanel;
+	JPanel panelTotal, loginPanel, registerPanel, 
+			managerPanel, bookManaPanel, addBookPanel, updateBookPanel,
+			loanPanel;
 	
 	public MainApp() {
 		setTitle("Ứng dụng quản lý thư viện");
-		setSize(600, 460);
+		setSize(600, 450);
         getContentPane().setBackground(Color.CYAN);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
@@ -80,11 +81,23 @@ public class MainApp extends JFrame implements ActionListener {
 		panel.add(btnOpen);
 		
 		///
-		loginPanel = new LoginPanel();
+		loginPanel = new LoginPanel(this);
+		registerPanel = new RegisterPanel(this);
+		managerPanel = new MainManager(this);
+		bookManaPanel = new BookManagerPanel(this);
+		addBookPanel = new AddBookPanel(this);
+		updateBookPanel = new UpdateBookPanel(this);
+		loanPanel = new LoanPanel(this);
 		
 		///
 		panelTotal.add(panel, "main");
 		panelTotal.add(loginPanel, "login");
+		panelTotal.add(registerPanel, "register"); 
+		panelTotal.add(managerPanel, "main manager");
+		panelTotal.add(bookManaPanel, "book manager");
+		panelTotal.add(addBookPanel, "add book");
+		panelTotal.add(updateBookPanel, "update book");
+		panelTotal.add(loanPanel, "loan");
 		
 		///
 		getContentPane().add(panelTotal); 
@@ -94,13 +107,12 @@ public class MainApp extends JFrame implements ActionListener {
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
 		JButton btn = (JButton) e.getSource();
 		if(btn == btnOpen) {
 			CardLayout c = (CardLayout) panelTotal.getLayout();
 			c.show(panelTotal, "login");
-			setTitle("Đăng nhập ứng dụng");
-			setSize(600, 300);
+			setTitle("Đăng nhập");
+			setSize(600, 260);
 		}
 	}
 	
@@ -108,6 +120,4 @@ public class MainApp extends JFrame implements ActionListener {
 		new MainApp();
 	}
 
-	
-	
 }

@@ -15,10 +15,14 @@ import javax.swing.SwingConstants;
 import java.awt.Rectangle;
 import java.awt.Cursor;
 import java.awt.Insets;
+import java.awt.GridLayout;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 
 public class demo {
 
 	private JFrame frame;
+	private JTable table;
 
 	/**
 	 * Launch the application.
@@ -48,31 +52,14 @@ public class demo {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 450, 300);
+		frame.setBounds(100, 100, 600, 460);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(new BorderLayout(0, 0));
+		frame.getContentPane().setLayout(new GridLayout(3, 0));
 		
-		JPanel panel = new JPanel();
-		frame.getContentPane().add(panel);
-		panel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		JScrollPane scrollPane = new JScrollPane();
+		frame.getContentPane().add(scrollPane);
 		
-		JLabel lblNewLabel = new JLabel("New label");
-		lblNewLabel.setForeground(new Color(128, 255, 0));
-		lblNewLabel.setBackground(new Color(0, 128, 0));
-		lblNewLabel.setVerticalAlignment(SwingConstants.TOP);
-		lblNewLabel.setPreferredSize(new Dimension(400, 20));
-		panel.add(lblNewLabel); 
-		
-		JButton btnNewButton = new JButton("New button");
-		btnNewButton.setInheritsPopupMenu(true);
-		btnNewButton.setIgnoreRepaint(true);
-		btnNewButton.setDefaultCapable(false);
-		btnNewButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		btnNewButton.setBorderPainted(false);
-		btnNewButton.setVerticalAlignment(SwingConstants.BOTTOM);
-		btnNewButton.setBackground(new Color(255, 0, 0));
-		btnNewButton.setForeground(new Color(255, 255, 128));
-		panel.add(btnNewButton);
+		table = new JTable();
+		scrollPane.setViewportView(table);
 	}
-
 }
