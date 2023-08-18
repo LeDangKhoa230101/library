@@ -72,6 +72,15 @@ public class MainManager extends JPanel {
 		btnThongke.setForeground(Color.WHITE);
 		btnThongke.setBorderPainted(false); 
 		btnThongke.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		btnThongke.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				CardLayout c = (CardLayout) mainApp.panelTotal.getLayout();
+				c.show(mainApp.panelTotal, "statistica");
+				mainApp.setTitle("Thống kê");
+				mainApp.setSize(600, 300);
+			}
+		});
 		
 		panel1.add(btnManaBook);
 		panel1.add(btnLoan);

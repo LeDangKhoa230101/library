@@ -174,7 +174,7 @@ public class BookManagerPanel extends JPanel {
 				CardLayout c = (CardLayout) mainApp.panelTotal.getLayout();
 				c.show(mainApp.panelTotal, "add book");
 				mainApp.setTitle("Thêm sách");
-				mainApp.setSize(600, 300);
+				mainApp.setSize(600, 360);
 			}
 		});
 
@@ -189,7 +189,7 @@ public class BookManagerPanel extends JPanel {
 				CardLayout c = (CardLayout) mainApp.panelTotal.getLayout();
 				c.show(mainApp.panelTotal, "update book");
 				mainApp.setTitle("Cập nhật sách");
-				mainApp.setSize(600, 300);
+				mainApp.setSize(600, 360);
 			}
 		});
 

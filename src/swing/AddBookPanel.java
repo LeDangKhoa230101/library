@@ -49,7 +49,7 @@ public class AddBookPanel extends JPanel {
 		lbAdd.setHorizontalAlignment(SwingConstants.CENTER);
 		lbAdd.setFont(new Font("Arial", Font.BOLD, 18));
 		lbAdd.setForeground(Color.BLUE);
-		lbAdd.setPreferredSize(new Dimension(410, 40));
+		lbAdd.setPreferredSize(new Dimension(500, 40));
 
 		///
 		JPanel panel = new JPanel();

@@ -26,7 +26,7 @@ public class MainApp extends JFrame implements ActionListener {
 	
 	JPanel panelTotal, loginPanel, registerPanel, 
 			managerPanel, bookManaPanel, addBookPanel, updateBookPanel,
-			loanPanel;
+			loanPanel, giveBookBackPanel, orderBookPanel, statisticalPanel;
 	
 	public MainApp() {
 		setTitle("Ứng dụng quản lý thư viện");
@@ -88,6 +88,9 @@ public class MainApp extends JFrame implements ActionListener {
 		addBookPanel = new AddBookPanel(this);
 		updateBookPanel = new UpdateBookPanel(this);
 		loanPanel = new LoanPanel(this);
+		giveBookBackPanel = new GiveBookBackPanel(this);
+		orderBookPanel = new OrderBookPanel(this);
+		statisticalPanel = new StatisticalPanel(this);
 		
 		///
 		panelTotal.add(panel, "main");
@@ -98,6 +101,9 @@ public class MainApp extends JFrame implements ActionListener {
 		panelTotal.add(addBookPanel, "add book");
 		panelTotal.add(updateBookPanel, "update book");
 		panelTotal.add(loanPanel, "loan");
+		panelTotal.add(giveBookBackPanel, "give book back");
+		panelTotal.add(orderBookPanel, "order book");
+		panelTotal.add(statisticalPanel, "statistica");
 		
 		///
 		getContentPane().add(panelTotal); 
