@@ -141,4 +141,32 @@ public class Dao {
 		return listBook; 
 	}
 	
+	public void addBook(String title, String author, String genre, int year, int quantity, int available) {
+		try {
+			String query = "INSERT INTO books (title, author, genre, publication_year, quantity, is_available) VALUES (?, ?, ?, ?, ?, ?)";
+			ps = conn.prepareStatement(query);
+			ps.setString(1, title);
+			ps.setString(2, author);
+			ps.setString(3, genre);
+			ps.setInt(4, year);
+			ps.setInt(5, quantity);
+			ps.setInt(6, available);
+			ps.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void removeBook(int bookId) {
+		try {
+			String query = "DELETE FROM books WHERE book_id = ?";
+			ps = conn.prepareStatement(query);
+			ps.setInt(1, bookId);
+			ps.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 }

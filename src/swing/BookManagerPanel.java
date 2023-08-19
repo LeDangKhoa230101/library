@@ -43,18 +43,18 @@ import model.Book;
 
 public class BookManagerPanel extends JPanel {
 
-	DefaultTableModel tableModel;
+	static DefaultTableModel tableModel;
 	JTable table;
 	JButton btnRemove, btnAdd, btnUpdate, btnSearch;
 	JTextField tfSearch;
-	
+
 	Connection conn;
-	Dao dao;
+	static Dao dao;
 
 	BookManagerPanel(MainApp mainApp) {
 		connectToDatabase();
 		dao = new Dao(conn);
-		
+
 		setBackground(Color.CYAN);
 		setLayout(new FlowLayout());
 
@@ -105,27 +105,31 @@ public class BookManagerPanel extends JPanel {
 				}
 			}
 		});
-		
+
 		/// xử lý sự kiên khi tfSearch rỗng
 		tfSearch.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void removeUpdate(DocumentEvent e) {
 				updateStatusLabel();
 			}
+
 			private void updateStatusLabel() {
-				if(tfSearch.getText().isEmpty()) {
-					tableModel.setRowCount(0); 
+				if (tfSearch.getText().isEmpty()) {
+					tableModel.setRowCount(0);
 					List<Book> books = dao.getBooks();
-					for(Book b : books) {
-						Object[] data = { b.getTitle(), b.getAuthor(), b.getGenre(), b.getYear(), b.getQuantity(), false };
+					for (Book b : books) {
+						Object[] data = { b.getTitle(), b.getAuthor(), b.getGenre(), b.getYear(), b.getQuantity(),
+								false };
 						tableModel.addRow(data);
 					}
 				}
 			}
+
 			@Override
 			public void insertUpdate(DocumentEvent e) {
 				updateStatusLabel();
 			}
+
 			@Override
 			public void changedUpdate(DocumentEvent e) {
 				updateStatusLabel();
@@ -186,12 +190,9 @@ public class BookManagerPanel extends JPanel {
 		JScrollPane scrollPane = new JScrollPane(table);
 		scrollPane.getViewport().setBackground(this.getBackground());
 
-		List<Book> books = dao.getBooks();
-		for(Book b : books) {
-			Object[] data = { b.getTitle(), b.getAuthor(), b.getGenre(), b.getYear(), b.getQuantity(), false };
-			tableModel.addRow(data);
-		}
-
+		/// hien thi danh sach book
+		getBookList();
+		
 		///
 		JPanel panel2 = new JPanel();
 		panel2.setLayout(new FlowLayout());
@@ -232,7 +233,13 @@ public class BookManagerPanel extends JPanel {
 		btnRemove.setForeground(Color.WHITE);
 		btnRemove.setBorderPainted(false);
 		btnRemove.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
+		btnRemove.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		});
+		
 		btnSearch = new JButton("Tìm kiếm");
 		btnSearch.setBackground(new Color(128, 0, 255));
 		btnSearch.setForeground(Color.WHITE);
@@ -244,14 +251,14 @@ public class BookManagerPanel extends JPanel {
 				tableModel.setRowCount(0);
 				String keyword = tfSearch.getText();
 				List<Book> search = dao.searchBook(keyword);
-				
-				for(Book b : search) {
+
+				for (Book b : search) {
 					Object[] data = { b.getTitle(), b.getAuthor(), b.getGenre(), b.getYear(), b.getQuantity(), false };
 					tableModel.addRow(data);
 				}
 			}
 		});
-		
+
 		panel2.add(btnAdd);
 		panel2.add(btnUpdate);
 		panel2.add(btnRemove);
@@ -263,12 +270,20 @@ public class BookManagerPanel extends JPanel {
 		add(panel2);
 	}
 
+	static void getBookList() {
+		List<Book> books = dao.getBooks();
+		for (Book b : books) {
+			Object[] data = { b.getTitle(), b.getAuthor(), b.getGenre(), b.getYear(), b.getQuantity(), false };
+			tableModel.addRow(data);
+		}
+	}
+
 	private void connectToDatabase() {
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://localhost/library?useSSL=false", "root", "ledangkhoa2301");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			conn = DriverManager.getConnection("jdbc:mysql://localhost/library?useSSL=false", "root", "ledangkhoa2301");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }
