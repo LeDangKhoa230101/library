@@ -9,14 +9,19 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+
+import database.Dao;
 
 public class LoginPanel extends JPanel implements ActionListener {
 	JLabel lbDangnhap, lbUsername, lbPassword;
@@ -25,7 +30,13 @@ public class LoginPanel extends JPanel implements ActionListener {
 	
 	JButton btnDanhNhap, btnDangKy, btnThoat;
 	
+	Connection conn;
+	Dao dao;
+	
 	LoginPanel(MainApp mainApp) {
+		connectToDatabase();
+		dao = new Dao(conn);
+		
 		setBackground(Color.CYAN);
 		setLayout(new FlowLayout());
 		setBorder(new EmptyBorder(40, 0, 0, 0));
@@ -71,12 +82,20 @@ public class LoginPanel extends JPanel implements ActionListener {
 		btnDanhNhap.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				CardLayout c = (CardLayout) mainApp.panelTotal.getLayout();
-				c.show(mainApp.panelTotal, "main manager");
-				mainApp.setTitle("Quản lý thư viện");
-				mainApp.setSize(600, 400);
-				tfUsername.setText("");
-				tfPassword.setText("");
+				String username = tfUsername.getText();
+				String password = new String(tfPassword.getPassword());
+				
+				if(dao.login(username, password)) {
+					JOptionPane.showMessageDialog(btnDanhNhap, "Đăng nhập thành công!");
+					CardLayout c = (CardLayout) mainApp.panelTotal.getLayout();
+					c.show(mainApp.panelTotal, "main manager");
+					mainApp.setTitle("Quản lý thư viện " + "(" + username + ")");
+					mainApp.setSize(600, 400);
+					tfUsername.setText("");
+					tfPassword.setText("");
+				} else {
+					JOptionPane.showMessageDialog(btnDanhNhap, "Sai tài khoản hoặc mật khẩu!");
+				}
 			}
 		});
 		
@@ -125,13 +144,19 @@ public class LoginPanel extends JPanel implements ActionListener {
 		add(panel);
 		add(panel1);
 	}
+	
+	private void connectToDatabase() {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost/library?useSSL=false", "root", "ledangkhoa2301");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		JButton btn = (JButton) e.getSource();
-		if(btn == btnDanhNhap) {
-			
-		}
+		
 	}
 	
 }

@@ -15,6 +15,10 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
@@ -26,11 +30,16 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
+
+import database.Dao;
+import model.Book;
 
 public class BookManagerPanel extends JPanel {
 
@@ -38,8 +47,14 @@ public class BookManagerPanel extends JPanel {
 	JTable table;
 	JButton btnRemove, btnAdd, btnUpdate, btnSearch;
 	JTextField tfSearch;
+	
+	Connection conn;
+	Dao dao;
 
 	BookManagerPanel(MainApp mainApp) {
+		connectToDatabase();
+		dao = new Dao(conn);
+		
 		setBackground(Color.CYAN);
 		setLayout(new FlowLayout());
 
@@ -88,6 +103,32 @@ public class BookManagerPanel extends JPanel {
 					tfSearch.setText(placeholder);
 					tfSearch.setForeground(Color.GRAY);
 				}
+			}
+		});
+		
+		/// xử lý sự kiên khi tfSearch rỗng
+		tfSearch.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				updateStatusLabel();
+			}
+			private void updateStatusLabel() {
+				if(tfSearch.getText().isEmpty()) {
+					tableModel.setRowCount(0); 
+					List<Book> books = dao.getBooks();
+					for(Book b : books) {
+						Object[] data = { b.getTitle(), b.getAuthor(), b.getGenre(), b.getYear(), b.getQuantity(), false };
+						tableModel.addRow(data);
+					}
+				}
+			}
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				updateStatusLabel();
+			}
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				updateStatusLabel();
 			}
 		});
 
@@ -145,18 +186,11 @@ public class BookManagerPanel extends JPanel {
 		JScrollPane scrollPane = new JScrollPane(table);
 		scrollPane.getViewport().setBackground(this.getBackground());
 
-		Object[] data = { "23", "4343", "343", "33223", "2323", false };
-		Object[] data1 = { "23", "4343", "343", "33223", "2323", false };
-		Object[] data2 = { "23", "4343", "343", "33223", "2323", false };
-		Object[] data3 = { "23", "4343", "343", "33223", "2323", false };
-		tableModel.addRow(data);
-		tableModel.addRow(data1);
-		tableModel.addRow(data2);
-		tableModel.addRow(data3);
-		tableModel.addRow(data3);
-		tableModel.addRow(data3);
-		tableModel.addRow(data3);
-		tableModel.addRow(data3);
+		List<Book> books = dao.getBooks();
+		for(Book b : books) {
+			Object[] data = { b.getTitle(), b.getAuthor(), b.getGenre(), b.getYear(), b.getQuantity(), false };
+			tableModel.addRow(data);
+		}
 
 		///
 		JPanel panel2 = new JPanel();
@@ -204,7 +238,20 @@ public class BookManagerPanel extends JPanel {
 		btnSearch.setForeground(Color.WHITE);
 		btnSearch.setBorderPainted(false);
 		btnSearch.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
+		btnSearch.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				tableModel.setRowCount(0);
+				String keyword = tfSearch.getText();
+				List<Book> search = dao.searchBook(keyword);
+				
+				for(Book b : search) {
+					Object[] data = { b.getTitle(), b.getAuthor(), b.getGenre(), b.getYear(), b.getQuantity(), false };
+					tableModel.addRow(data);
+				}
+			}
+		});
+		
 		panel2.add(btnAdd);
 		panel2.add(btnUpdate);
 		panel2.add(btnRemove);
@@ -216,4 +263,12 @@ public class BookManagerPanel extends JPanel {
 		add(panel2);
 	}
 
+	private void connectToDatabase() {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost/library?useSSL=false", "root", "ledangkhoa2301");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

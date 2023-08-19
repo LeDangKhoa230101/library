@@ -1,4 +1,4 @@
-package oop;
+package model;
 
 public class Book {
 	private int bookID;
@@ -7,6 +7,7 @@ public class Book {
 	private String genre;
 	private int year;
 	private int quantity;
+	private int isAvailable;
 
 	public Book() {
 		super();
@@ -68,6 +69,14 @@ public class Book {
 
 	public void setQuantity(int quantity) {
 		this.quantity = quantity;
+	}
+	
+	public int getIsAvailable() {
+		return isAvailable;
+	}
+
+	public void setIsAvailable(int isAvailable) {
+		this.isAvailable = isAvailable;
 	}
 
 	@Override

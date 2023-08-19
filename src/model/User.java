@@ -1,4 +1,4 @@
-package oop;
+package model;
 
 public class User {
 	private int userID;

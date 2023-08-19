@@ -11,6 +11,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -20,14 +22,21 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import database.Dao;
+
 public class MainManager extends JPanel {
 	JButton btnManaBook, btnLoan, btnThongke;
 	JLabel lbTongSach, lbSachCoSan, lbDangMuon;
-	int totalSach = 0;
 	int sachCoSan = 0;
 	int dangMuon = 0;
 	
+	Connection conn;
+	Dao dao;
+	
 	MainManager(MainApp mainApp) {
+		connectToDatabase();
+		dao = new Dao(conn);
+		
 		setLayout(new GridLayout(3, 0));
 		setBackground(Color.CYAN);
 		setBorder(new EmptyBorder(20, 0, 0, 0));
@@ -109,9 +118,13 @@ public class MainManager extends JPanel {
 		panel2.setLayout(new GridLayout(0, 3));
 		panel2.setBackground(Color.CYAN);
 		
-		lbTongSach = new JLabel("Tổng số sách: " + totalSach);
-		lbSachCoSan = new JLabel("Sách có sẵn: " + sachCoSan);
-		lbDangMuon = new JLabel("Sách đang mượn: " + dangMuon);
+		int totalBooks = dao.totalBook();
+		int bookAvailable = dao.bookIsAvailable();
+		int bookBorrowed = dao.bookBorrowed();
+		
+		lbTongSach = new JLabel("Tổng số sách: " + totalBooks);
+		lbSachCoSan = new JLabel("Sách có sẵn: " + bookAvailable);
+		lbDangMuon = new JLabel("Sách đang mượn: " + bookBorrowed);
 		
 		lbTongSach.setFont(new Font("Arial", Font.PLAIN, 15)); 
 		lbSachCoSan.setFont(new Font("Arial", Font.PLAIN, 15)); 
@@ -130,5 +143,14 @@ public class MainManager extends JPanel {
 		add(label);
 		add(panel2);
 	}
+	
+	private void connectToDatabase() {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost/library?useSSL=false", "root", "ledangkhoa2301");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }

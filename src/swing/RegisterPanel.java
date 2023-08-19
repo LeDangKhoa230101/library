@@ -9,14 +9,19 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+
+import database.Dao;
 
 public class RegisterPanel extends JPanel implements ActionListener {
 	JLabel lbDangky, lbUsername, lbPassword, lbRePassword;
@@ -25,7 +30,13 @@ public class RegisterPanel extends JPanel implements ActionListener {
 	 
 	JButton btnDangky, btnDanhNhap, btnThoat;
 	
+	Connection conn;
+	Dao dao;
+	
 	RegisterPanel(MainApp mainApp) {
+		connectToDatabase();
+		dao = new Dao(conn);
+		
 		setBackground(Color.CYAN);
 		setLayout(new FlowLayout());
 		setBorder(new EmptyBorder(40, 0, 0, 0));
@@ -76,6 +87,32 @@ public class RegisterPanel extends JPanel implements ActionListener {
 		btnDangky.setForeground(Color.WHITE);
 		btnDangky.setBorderPainted(false); 
 		btnDangky.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		btnDangky.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String username = tfUsername.getText();
+				String password = new String(tfPassword.getPassword());
+				String repassword = new String(tfRePassword.getPassword());
+				
+				if(dao.checkUserExit(username)) {
+					JOptionPane.showMessageDialog(btnDangky, "Tài khoản đã tồn tại!");
+				} else if(!password.equalsIgnoreCase(repassword)) {
+					JOptionPane.showMessageDialog(btnDangky, "Mật khẩu không trùng khớp!");
+				} else {
+					dao.register(username, repassword);
+					
+					JOptionPane.showMessageDialog(btnDangky, "Đăng ký thành công!");
+					
+					CardLayout c = (CardLayout) mainApp.panelTotal.getLayout();
+					c.show(mainApp.panelTotal, "login");
+					mainApp.setTitle("Đăng nhập");
+					mainApp.setSize(600, 260);
+					tfUsername.setText("");
+					tfPassword.setText("");
+					tfRePassword.setText(""); 
+				}
+			}
+		});
 		
 		btnDanhNhap = new JButton("Đăng nhập");
 		btnDanhNhap.setBackground(new Color(0, 128, 255));
@@ -124,6 +161,15 @@ public class RegisterPanel extends JPanel implements ActionListener {
 		add(panel);
 		add(panel1);
 	}
+	
+	private void connectToDatabase() {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost/library?useSSL=false", "root", "ledangkhoa2301");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
