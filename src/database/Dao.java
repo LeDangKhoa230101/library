@@ -157,16 +157,33 @@ public class Dao {
 		}
 	}
 	
-	public void removeBook(int bookId) {
+	public void removeBook(String title) {
 		try {
-			String query = "DELETE FROM books WHERE book_id = ?";
+			String query = "DELETE FROM books WHERE title = ?";
 			ps = conn.prepareStatement(query);
-			ps.setInt(1, bookId);
+			ps.setString(1, title);
 			ps.executeUpdate();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
+	
+	public void updateBook(String title, String author, 
+			String genre, String year, String quantity) {
+		try {
+			String query = "UPDATE books SET title = ?, author = ?, genre = ?, publication_year = ?, quantity = ? WHERE title = ?";
+			ps = conn.prepareStatement(query);
+			ps.setString(1, title);
+			ps.setString(2, author);
+			ps.setString(3, genre);
+			ps.setString(4, year);
+			ps.setString(5, quantity);
+			ps.setString(6, title);
+			ps.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 }

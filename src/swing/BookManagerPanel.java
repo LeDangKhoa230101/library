@@ -1,41 +1,39 @@
 package swing;
 
-import java.awt.CardLayout;
+import java.awt.CardLayout; 
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.ArrayList;
+import java.util.EventObject;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 import database.Dao;
@@ -45,7 +43,7 @@ public class BookManagerPanel extends JPanel {
 
 	static DefaultTableModel tableModel;
 	JTable table;
-	JButton btnRemove, btnAdd, btnUpdate, btnSearch;
+	JButton btnRemove, btnAdd, btnSearch;
 	JTextField tfSearch;
 
 	Connection conn;
@@ -170,8 +168,26 @@ public class BookManagerPanel extends JPanel {
 		table.getColumnModel().getColumn(4).setPreferredWidth(20);
 		table.getColumnModel().getColumn(5).setPreferredWidth(8);
 
+		// Tạo TableCellEditor tùy chỉnh
+		TableCellEditor nonEditableCellEditor = new DefaultCellEditor(new JTextField()) {
+		    @Override
+		    public boolean isCellEditable(EventObject e) {
+		        return false;
+		    }
+		};
+		for (int i = 0; i < table.getColumnCount(); i++) {
+		    if (i != 5) { // Loại trừ cột checkbox (cột 5)
+		        table.getColumnModel().getColumn(i).setCellEditor(nonEditableCellEditor);
+		    }
+		}
+		
 		/// checkbox
-		table.getColumnModel().getColumn(5).setCellEditor(new DefaultCellEditor(new JCheckBox()));
+		table.getColumnModel().getColumn(5).setCellEditor(new DefaultCellEditor(new JCheckBox()) {
+			@Override
+			public boolean isCellEditable(EventObject e) {
+				return true;
+			}
+		});
 		table.getColumnModel().getColumn(5).setCellRenderer(new TableCellRenderer() {
 			@Override
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
@@ -186,7 +202,17 @@ public class BookManagerPanel extends JPanel {
 		table.getTableHeader().setBackground(Color.WHITE);
 		table.setSelectionBackground(Color.WHITE);
 		table.setPreferredScrollableViewportSize(new Dimension(566, 80));
-
+		
+		// Lắng nghe sự kiện chọn dòng trong bảng
+        table.getSelectionModel().addListSelectionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            int selectedColumn = table.getSelectedColumn();
+            
+            if(selectedRow >= 0 && selectedColumn != 5) {
+            	showBookDetail(selectedRow);
+            }
+        });
+		
 		JScrollPane scrollPane = new JScrollPane(table);
 		scrollPane.getViewport().setBackground(this.getBackground());
 
@@ -213,21 +239,6 @@ public class BookManagerPanel extends JPanel {
 			}
 		});
 
-		btnUpdate = new JButton("Sữa");
-		btnUpdate.setBackground(new Color(255, 128, 64));
-		btnUpdate.setForeground(Color.WHITE);
-		btnUpdate.setBorderPainted(false);
-		btnUpdate.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		btnUpdate.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				CardLayout c = (CardLayout) mainApp.panelTotal.getLayout();
-				c.show(mainApp.panelTotal, "update book");
-				mainApp.setTitle("Cập nhật sách");
-				mainApp.setSize(600, 360);
-			}
-		});
-
 		btnRemove = new JButton("Xóa");
 		btnRemove.setBackground(new Color(0, 255, 0));
 		btnRemove.setForeground(Color.WHITE);
@@ -236,7 +247,24 @@ public class BookManagerPanel extends JPanel {
 		btnRemove.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				int rowCount = tableModel.getRowCount();
+				List<Integer> rowsToDelete = new ArrayList<Integer>();
 				
+				for(int i = 0; i < rowCount; i++) {
+					boolean isSelected = (boolean) tableModel.getValueAt(i, 5);
+					if(isSelected) {
+						rowsToDelete.add(i);
+					}
+				}
+				
+				for(int i = rowsToDelete.size() - 1; i >= 0; i--) {
+					int row = rowsToDelete.get(i);
+					String title = (String) tableModel.getValueAt(row, 0);
+					dao.removeBook(title);
+					JOptionPane.showMessageDialog(btnRemove, "Xóa sách thành công!");
+					tableModel.removeRow(row);
+				}
+				getBookList();
 			}
 		});
 		
@@ -260,7 +288,6 @@ public class BookManagerPanel extends JPanel {
 		});
 
 		panel2.add(btnAdd);
-		panel2.add(btnUpdate);
 		panel2.add(btnRemove);
 		panel2.add(btnSearch);
 
@@ -268,14 +295,27 @@ public class BookManagerPanel extends JPanel {
 		add(panel1);
 		add(scrollPane);
 		add(panel2);
-	}
+	} 
 
 	static void getBookList() {
+		tableModel.setRowCount(0);
 		List<Book> books = dao.getBooks();
 		for (Book b : books) {
 			Object[] data = { b.getTitle(), b.getAuthor(), b.getGenre(), b.getYear(), b.getQuantity(), false };
 			tableModel.addRow(data);
 		}
+	}
+	
+	private void showBookDetail(int row) {
+        String title = (String) tableModel.getValueAt(row, 0);
+        String author = (String) tableModel.getValueAt(row, 1);
+        String genre = (String) tableModel.getValueAt(row, 2);
+        String year = String.valueOf(tableModel.getValueAt(row, 3));
+        String quantity = String.valueOf(tableModel.getValueAt(row, 4));
+        
+        UpdateBookPanel updatePanel = new UpdateBookPanel(title, author, genre, year, quantity);
+        JOptionPane.showConfirmDialog(this, updatePanel, "Update Book", JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE);
 	}
 
 	private void connectToDatabase() {

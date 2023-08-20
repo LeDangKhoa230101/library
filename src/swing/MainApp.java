@@ -26,7 +26,7 @@ public class MainApp extends JFrame implements ActionListener {
 	JButton btnOpen;
 	
 	JPanel panelTotal, loginPanel, registerPanel, 
-			managerPanel, bookManaPanel, addBookPanel, updateBookPanel,
+			managerPanel, bookManaPanel, addBookPanel,
 			loanPanel, giveBookBackPanel, orderBookPanel, statisticalPanel;
 	
 	public MainApp() {
@@ -87,7 +87,6 @@ public class MainApp extends JFrame implements ActionListener {
 		managerPanel = new MainManager(this);
 		bookManaPanel = new BookManagerPanel(this);
 		addBookPanel = new AddBookPanel(this);
-		updateBookPanel = new UpdateBookPanel(this);
 		loanPanel = new LoanPanel(this);
 		giveBookBackPanel = new GiveBookBackPanel(this);
 		orderBookPanel = new OrderBookPanel(this);
@@ -100,7 +99,6 @@ public class MainApp extends JFrame implements ActionListener {
 		panelTotal.add(managerPanel, "main manager");
 		panelTotal.add(bookManaPanel, "book manager");
 		panelTotal.add(addBookPanel, "add book");
-		panelTotal.add(updateBookPanel, "update book");
 		panelTotal.add(loanPanel, "loan");
 		panelTotal.add(giveBookBackPanel, "give book back");
 		panelTotal.add(orderBookPanel, "order book");
