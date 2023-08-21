@@ -116,7 +116,7 @@ public class BookManagerPanel extends JPanel {
 					tableModel.setRowCount(0);
 					List<Book> books = dao.getBooks();
 					for (Book b : books) {
-						Object[] data = { b.getTitle(), b.getAuthor(), b.getGenre(), b.getYear(), b.getQuantity(),
+						Object[] data = { b.getBookID(), b.getTitle(), b.getAuthor(), b.getGenre(), b.getYear(), b.getQuantity(),
 								false };
 						tableModel.addRow(data);
 					}
@@ -269,6 +269,7 @@ public class BookManagerPanel extends JPanel {
 				}
 				getBookList();
 				LoanPanel.getBookAvailable();
+				StatisticalPanel.getStatis();
 			}
 		});
 		

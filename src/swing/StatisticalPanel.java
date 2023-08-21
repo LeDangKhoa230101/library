@@ -8,6 +8,9 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -18,11 +21,20 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
+import database.Dao;
+import model.Book;
+
 public class StatisticalPanel extends JPanel {
-	DefaultTableModel tableModel;
+	static DefaultTableModel tableModel;
 	JTable table;
+	
+	Connection conn;
+	static Dao dao;
 
 	StatisticalPanel(MainApp mainApp) {
+		connectToDatabase();
+		dao = new Dao(conn);
+		
 		setBackground(Color.CYAN);
 		setLayout(new FlowLayout());
 
@@ -78,19 +90,30 @@ public class StatisticalPanel extends JPanel {
 		JScrollPane scrollPane = new JScrollPane(table);
 		scrollPane.getViewport().setBackground(this.getBackground());
 
-		Object[] data = { "23", "4343" };
-		Object[] data1 = { "23", "4343" };
-		Object[] data2 = { "23", "4343" };
-		Object[] data3 = { "23", "4343" };
-		tableModel.addRow(data);
-		tableModel.addRow(data1);
-		tableModel.addRow(data2);
-		tableModel.addRow(data3);
+		getStatis();
 
 		///
 		add(panel1);
 		add(lbAdd);
 		add(scrollPane);
+	}
+	
+	public static void getStatis() {
+		tableModel.setRowCount(0);
+		List<Book> books = dao.statissticalGenre();
+		for(Book b : books) {
+			Object[] data = { b.getGenre(), b.getQuantity() };
+			tableModel.addRow(data);
+		}
+	}
+	
+	private void connectToDatabase() {
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			conn = DriverManager.getConnection("jdbc:mysql://localhost/library?useSSL=false", "root", "ledangkhoa2301");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }

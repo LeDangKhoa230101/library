@@ -141,6 +141,7 @@ public class AddBookPanel extends JPanel {
 					JOptionPane.showMessageDialog(btnAdd, "Đã thêm sách thành công!");
 					BookManagerPanel.getBookList();
 					LoanPanel.getBookAvailable();
+					StatisticalPanel.getStatis();
 				}
 			}
 		});

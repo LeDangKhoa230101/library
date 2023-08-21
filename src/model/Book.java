@@ -14,6 +14,12 @@ public class Book {
 		super();
 	}
 	
+	public Book(String genre, int quantity) {
+		super();
+		this.genre = genre;
+		this.quantity = quantity;
+	}
+
 	public Book(String title, String author, String genre, int year) {
 		super();
 		this.title = title;

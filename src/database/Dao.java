@@ -305,4 +305,19 @@ public class Dao {
 		}
 	}
 	
+	public List<Book> statissticalGenre() {
+		List<Book> books = new ArrayList<Book>();
+		try {
+			String query = "SELECT genre, COUNT(*) AS quantity FROM books GROUP BY genre";
+			ps = conn.prepareStatement(query);
+			rs = ps.executeQuery();
+			while (rs.next()) {
+				books.add(new Book(rs.getString(1), rs.getInt(2))); 
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return books;
+	}
+	
 }

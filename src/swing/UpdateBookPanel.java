@@ -106,6 +106,7 @@ public class UpdateBookPanel extends JPanel {
 	        		
 	        		BookManagerPanel.getBookList();
 	        		LoanPanel.getBookAvailable();
+	        		StatisticalPanel.getStatis();
 	        	}
 			}
 		});
