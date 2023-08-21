@@ -139,6 +139,7 @@ public class BookManagerPanel extends JPanel {
 
 		///
 		tableModel = new DefaultTableModel();
+		tableModel.addColumn("ID");
 		tableModel.addColumn("Title");
 		tableModel.addColumn("Author");
 		tableModel.addColumn("Genre");
@@ -159,14 +160,16 @@ public class BookManagerPanel extends JPanel {
 		table.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
 		table.getColumnModel().getColumn(4).setCellRenderer(centerRenderer);
 		table.getColumnModel().getColumn(5).setCellRenderer(centerRenderer);
+		table.getColumnModel().getColumn(6).setCellRenderer(centerRenderer);
 
 		/// width cố định
-		table.getColumnModel().getColumn(0).setPreferredWidth(140);
-		table.getColumnModel().getColumn(1).setPreferredWidth(100);
-		table.getColumnModel().getColumn(2).setPreferredWidth(80);
-		table.getColumnModel().getColumn(3).setPreferredWidth(20);
-		table.getColumnModel().getColumn(4).setPreferredWidth(20);
+		table.getColumnModel().getColumn(0).setPreferredWidth(10);
+		table.getColumnModel().getColumn(1).setPreferredWidth(120);
+		table.getColumnModel().getColumn(2).setPreferredWidth(70);
+		table.getColumnModel().getColumn(3).setPreferredWidth(40);
+		table.getColumnModel().getColumn(4).setPreferredWidth(40);
 		table.getColumnModel().getColumn(5).setPreferredWidth(8);
+		table.getColumnModel().getColumn(6).setPreferredWidth(8);
 
 		// Tạo TableCellEditor tùy chỉnh
 		TableCellEditor nonEditableCellEditor = new DefaultCellEditor(new JTextField()) {
@@ -176,19 +179,19 @@ public class BookManagerPanel extends JPanel {
 		    }
 		};
 		for (int i = 0; i < table.getColumnCount(); i++) {
-		    if (i != 5) { // Loại trừ cột checkbox (cột 5)
+		    if (i != 6) { // Loại trừ cột checkbox (cột 5)
 		        table.getColumnModel().getColumn(i).setCellEditor(nonEditableCellEditor);
 		    }
 		}
 		
 		/// checkbox
-		table.getColumnModel().getColumn(5).setCellEditor(new DefaultCellEditor(new JCheckBox()) {
+		table.getColumnModel().getColumn(6).setCellEditor(new DefaultCellEditor(new JCheckBox()) {
 			@Override
 			public boolean isCellEditable(EventObject e) {
 				return true;
 			}
 		});
-		table.getColumnModel().getColumn(5).setCellRenderer(new TableCellRenderer() {
+		table.getColumnModel().getColumn(6).setCellRenderer(new TableCellRenderer() {
 			@Override
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 					boolean hasFocus, int row, int column) {
@@ -208,7 +211,7 @@ public class BookManagerPanel extends JPanel {
             int selectedRow = table.getSelectedRow();
             int selectedColumn = table.getSelectedColumn();
             
-            if(selectedRow >= 0 && selectedColumn != 5) {
+            if(selectedRow >= 0 && selectedColumn != 6) {
             	showBookDetail(selectedRow);
             }
         });
@@ -251,7 +254,7 @@ public class BookManagerPanel extends JPanel {
 				List<Integer> rowsToDelete = new ArrayList<Integer>();
 				
 				for(int i = 0; i < rowCount; i++) {
-					boolean isSelected = (boolean) tableModel.getValueAt(i, 5);
+					boolean isSelected = (boolean) tableModel.getValueAt(i, 6);
 					if(isSelected) {
 						rowsToDelete.add(i);
 					}
@@ -259,12 +262,13 @@ public class BookManagerPanel extends JPanel {
 				
 				for(int i = rowsToDelete.size() - 1; i >= 0; i--) {
 					int row = rowsToDelete.get(i);
-					String title = (String) tableModel.getValueAt(row, 0);
-					dao.removeBook(title);
+					int bookId = (int) tableModel.getValueAt(row, 0);
+					dao.removeBook(bookId);
 					JOptionPane.showMessageDialog(btnRemove, "Xóa sách thành công!");
 					tableModel.removeRow(row);
 				}
 				getBookList();
+				LoanPanel.getBookAvailable();
 			}
 		});
 		
@@ -281,7 +285,7 @@ public class BookManagerPanel extends JPanel {
 				List<Book> search = dao.searchBook(keyword);
 
 				for (Book b : search) {
-					Object[] data = { b.getTitle(), b.getAuthor(), b.getGenre(), b.getYear(), b.getQuantity(), false };
+					Object[] data = { b.getBookID(), b.getTitle(), b.getAuthor(), b.getGenre(), b.getYear(), b.getQuantity(), false };
 					tableModel.addRow(data);
 				}
 			}
@@ -301,17 +305,17 @@ public class BookManagerPanel extends JPanel {
 		tableModel.setRowCount(0);
 		List<Book> books = dao.getBooks();
 		for (Book b : books) {
-			Object[] data = { b.getTitle(), b.getAuthor(), b.getGenre(), b.getYear(), b.getQuantity(), false };
+			Object[] data = { b.getBookID(), b.getTitle(), b.getAuthor(), b.getGenre(), b.getYear(), b.getQuantity(), false };
 			tableModel.addRow(data);
 		}
 	}
 	
 	private void showBookDetail(int row) {
-        String title = (String) tableModel.getValueAt(row, 0);
-        String author = (String) tableModel.getValueAt(row, 1);
-        String genre = (String) tableModel.getValueAt(row, 2);
-        String year = String.valueOf(tableModel.getValueAt(row, 3));
-        String quantity = String.valueOf(tableModel.getValueAt(row, 4));
+        String title = (String) tableModel.getValueAt(row, 1);
+        String author = (String) tableModel.getValueAt(row, 2);
+        String genre = (String) tableModel.getValueAt(row, 3);
+        String year = String.valueOf(tableModel.getValueAt(row, 4));
+        String quantity = String.valueOf(tableModel.getValueAt(row, 5));
         
         UpdateBookPanel updatePanel = new UpdateBookPanel(title, author, genre, year, quantity);
         JOptionPane.showConfirmDialog(this, updatePanel, "Update Book", JOptionPane.OK_CANCEL_OPTION,

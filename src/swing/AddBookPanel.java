@@ -140,6 +140,7 @@ public class AddBookPanel extends JPanel {
 					dao.addBook(title, author, genre, Integer.parseInt(year), Integer.parseInt(quantity), Integer.parseInt(available));
 					JOptionPane.showMessageDialog(btnAdd, "Đã thêm sách thành công!");
 					BookManagerPanel.getBookList();
+					LoanPanel.getBookAvailable();
 				}
 			}
 		});

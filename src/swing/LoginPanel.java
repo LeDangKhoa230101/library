@@ -22,6 +22,8 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import database.Dao;
+import model.User;
+import model.UserSeccion;
 
 public class LoginPanel extends JPanel implements ActionListener {
 	JLabel lbDangnhap, lbUsername, lbPassword;
@@ -85,11 +87,15 @@ public class LoginPanel extends JPanel implements ActionListener {
 				String username = tfUsername.getText();
 				String password = new String(tfPassword.getPassword());
 				
-				if(dao.login(username, password)) {
+				User user = dao.login(username, password);
+				
+				if(user != null) {
+					UserSeccion.setCurrentUserId(user.getUserID());
+					
 					JOptionPane.showMessageDialog(btnDanhNhap, "Đăng nhập thành công!");
 					CardLayout c = (CardLayout) mainApp.panelTotal.getLayout();
 					c.show(mainApp.panelTotal, "main manager");
-					mainApp.setTitle("Quản lý thư viện " + "(" + username + ")");
+					mainApp.setTitle("Quản lý thư viện " + "(" + user.getUsername() + ")");
 					mainApp.setSize(600, 400);
 					tfUsername.setText("");
 					tfPassword.setText("");

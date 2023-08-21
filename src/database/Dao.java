@@ -5,30 +5,39 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import model.Book;
+import model.User;
 
 public class Dao {
 	Connection conn;
 	PreparedStatement ps = null;
 	ResultSet rs = null;
+	
+	public Dao() {
+		super();
+	}
 
 	public Dao(Connection conn) {
 		this.conn = conn;
 	}
 
-	public boolean login(String username, String password) {
+	public User login(String username, String password) {
+		User user = new User();
 		try {
 			String query = "SELECT * FROM users WHERE username = ? AND password = ?";
 			ps = conn.prepareStatement(query);
 			ps.setString(1, username);
 			ps.setString(2, password);
 			rs = ps.executeQuery();
-			return rs.next();
+			while (rs.next()) {
+				user = new  User(rs.getInt(1), rs.getString(2), rs.getString(3));
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return false;
+		return user;
 	}
 
 	public boolean checkUserExit(String username) {
@@ -157,11 +166,39 @@ public class Dao {
 		}
 	}
 	
-	public void removeBook(String title) {
+	public void removeBook(int bookId) {
+		// Xác định các bản ghi loans liên quan
+		List<Integer> loanIdsToDelete = new ArrayList<Integer>();
 		try {
-			String query = "DELETE FROM books WHERE title = ?";
+			String getLoansQuery = "SELECT loan_id FROM loans WHERE book_id = ?";
+			ps = conn.prepareStatement(getLoansQuery);
+			ps.setInt(1, bookId);
+			rs = ps.executeQuery();
+			while(rs.next()) {
+				int loanId = rs.getInt("loan_id");
+				loanIdsToDelete.add(loanId);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		// Xóa tất cả các bản ghi loans liên quan
+		try {
+			String deleteLoansQuery = "DELETE FROM loans WHERE loan_id = ?";
+			ps = conn.prepareStatement(deleteLoansQuery);
+			for(int loanId : loanIdsToDelete) {
+				ps.setInt(1, loanId);
+				ps.executeUpdate();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		// Tiến hành xóa cuốn sách từ bảng books
+		try {
+			String query = "DELETE FROM books WHERE book_id = ?";
 			ps = conn.prepareStatement(query);
-			ps.setString(1, title);
+			ps.setInt(1, bookId);
 			ps.executeUpdate();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -181,6 +218,88 @@ public class Dao {
 			ps.setString(5, quantity);
 			ps.setString(6, title);
 			ps.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public List<Book> getBookAvailable() {
+		List<Book> books = new ArrayList<Book>();
+		try {
+			String query = "SELECT * FROM books WHERE is_available = 1";
+			ps = conn.prepareStatement(query);
+			rs = ps.executeQuery();
+			while(rs.next()) {
+				books.add(new Book(rs.getInt(1), 
+								rs.getString(2), 
+								rs.getString(3), 
+								rs.getString(4), 
+								rs.getInt(5), 
+								rs.getInt(6)));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return books;
+	}
+	
+	// ngày mượn là ngày hiện tại và ngày trả dự kiến là sau 14 ngày
+	public void borrowBooks(int userId, List<Integer> bookIds) {
+		try {
+			for(Integer bookId : bookIds) {
+				String query = "INSERT INTO loans (user_id, book_id, loan_date, due_date) "
+						+ "VALUES (?, ?, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 14 DAY))";
+				ps = conn.prepareStatement(query);
+				ps.setInt(1, userId);
+				ps.setInt(2, bookId); 
+				ps.executeUpdate();
+				
+				String updateQty = "UPDATE books SET quantity = quantity - 1 WHERE book_id = ?";
+				ps = conn.prepareStatement(updateQty);
+				ps.setInt(1, bookId); 
+				ps.executeUpdate();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+	}
+	
+	public List<Book> getBorrowedBooks(int userId) {
+		List<Book> books = new ArrayList<Book>();
+		try {
+			String query = "SELECT loans.loan_id, books.title, books.author, books.genre, books.publication_year FROM books INNER JOIN loans ON books.book_id = loans.book_id WHERE loans.user_id = ?";
+			ps = conn.prepareStatement(query);
+			ps.setInt(1, userId); 
+			rs = ps.executeQuery();
+			while(rs.next()) {
+				books.add(new Book(rs.getInt(1),
+								rs.getString(2), 
+								rs.getString(3), 
+								rs.getString(4), 
+								rs.getInt(5)));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return books;
+	}
+	
+	public void returnBooks(List<Integer> loanIds) {
+		try {
+			String updateQuery = "UPDATE loans SET due_date = CURDATE() WHERE CONCAT(',', ?, ',') LIKE CONCAT('%,', loan_id, ',%')";
+
+			try (PreparedStatement ps = conn.prepareStatement(updateQuery)) {
+			    ps.setString(1, String.join(",", loanIds.stream().map(String::valueOf).collect(Collectors.toList())));
+			    ps.executeUpdate();
+			}
+			
+			// Xóa sách đã trả khỏi danh sách sách đang mượn của người dùng
+	        String deleteQuery = "DELETE FROM loans WHERE loan_id IN (?)";
+
+	        try (PreparedStatement psDelete = conn.prepareStatement(deleteQuery)) {
+	            psDelete.setString(1, String.join(",", loanIds.stream().map(String::valueOf).collect(Collectors.toList())));
+	            psDelete.executeUpdate();
+	        }
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

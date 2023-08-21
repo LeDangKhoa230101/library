@@ -56,7 +56,6 @@ public class StatisticalPanel extends JPanel {
 		lbAdd.setPreferredSize(new Dimension(500, 40));
 
 		///
-		///
 		tableModel = new DefaultTableModel();
 		tableModel.addColumn("Genre");
 		tableModel.addColumn("Quantity");

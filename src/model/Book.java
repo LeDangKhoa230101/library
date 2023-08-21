@@ -1,6 +1,7 @@
 package model;
 
 public class Book {
+	private int loanId;
 	private int bookID;
 	private String title;
 	private String author;
@@ -12,6 +13,23 @@ public class Book {
 	public Book() {
 		super();
 	}
+	
+	public Book(String title, String author, String genre, int year) {
+		super();
+		this.title = title;
+		this.author = author;
+		this.genre = genre;
+		this.year = year;
+	}
+
+	public Book(int loanId, String title, String author, String genre, int year) {
+		super();
+		this.loanId = loanId;
+		this.title = title;
+		this.author = author;
+		this.genre = genre;
+		this.year = year;
+	}
 
 	public Book(int bookID, String title, String author, String genre, int year, int quantity) {
 		super();
@@ -21,6 +39,14 @@ public class Book {
 		this.genre = genre;
 		this.year = year;
 		this.quantity = quantity;
+	}
+	
+	public int getLoanId() {
+		return loanId;
+	}
+
+	public void setLoanId(int loanId) {
+		this.loanId = loanId;
 	}
 
 	public int getBookID() {

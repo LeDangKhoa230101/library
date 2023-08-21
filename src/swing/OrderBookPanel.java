@@ -7,8 +7,10 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
@@ -22,35 +24,15 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
+import model.Book;
+
 public class OrderBookPanel extends JPanel {
 	DefaultTableModel tableModel;
 	JTable table;
 
-	OrderBookPanel(MainApp mainApp) {
+	OrderBookPanel(List<Book> selectedBooks) {
 		setBackground(Color.CYAN);
-		setLayout(new FlowLayout());
-
-		///
-		JPanel panel1 = new JPanel();
-		panel1.setLayout(new FlowLayout(FlowLayout.LEFT, 240, 4));
-		panel1.setBackground(Color.CYAN);
-
-		JButton btnBack = new JButton("Quay lại");
-		btnBack.setBackground(new Color(0, 128, 255));
-		btnBack.setForeground(Color.WHITE);
-		btnBack.setBorderPainted(false);
-		btnBack.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		btnBack.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				CardLayout c = (CardLayout) mainApp.panelTotal.getLayout();
-				c.show(mainApp.panelTotal, "loan");
-				mainApp.setTitle("Mượn trả sách");
-				mainApp.setSize(600, 300);
-			}
-		});
-
-		panel1.add(btnBack);
+		setLayout(new GridLayout(2, 1));
 
 		///
 		JLabel lbAdd = new JLabel("Hóa đơn mượn sách");
@@ -58,13 +40,13 @@ public class OrderBookPanel extends JPanel {
 		lbAdd.setFont(new Font("Arial", Font.BOLD, 18));
 		lbAdd.setForeground(Color.BLUE);
 		lbAdd.setPreferredSize(new Dimension(500, 40));
-		
+
 		///
 		tableModel = new DefaultTableModel();
 		tableModel.addColumn("Title");
 		tableModel.addColumn("Author");
 		tableModel.addColumn("Genre");
-		tableModel.addColumn("Quantity");
+		tableModel.addColumn("Year");
 
 		table = new JTable(tableModel);
 		/// căn giữa, màu chữ, font chữ
@@ -92,17 +74,13 @@ public class OrderBookPanel extends JPanel {
 		JScrollPane scrollPane = new JScrollPane(table);
 		scrollPane.getViewport().setBackground(this.getBackground());
 
-		Object[] data = { "23", "4343", "343", "33223", "2323", false };
-		Object[] data1 = { "23", "4343", "343", "33223", "2323", false };
-		Object[] data2 = { "23", "4343", "343", "33223", "2323", false };
-		Object[] data3 = { "23", "4343", "343", "33223", "2323", false };
-		tableModel.addRow(data);
-		tableModel.addRow(data1);
-		tableModel.addRow(data2);
-		tableModel.addRow(data3);
+		tableModel.setRowCount(0);
+		for (Book book : selectedBooks) {
+			Object[] rowData = { book.getTitle(), book.getAuthor(), book.getGenre(), book.getYear() };
+			tableModel.addRow(rowData);
+		}
 
 		///
-		add(panel1);
 		add(lbAdd);
 		add(scrollPane);
 	}

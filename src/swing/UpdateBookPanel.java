@@ -105,6 +105,7 @@ public class UpdateBookPanel extends JPanel {
 	        		JOptionPane.showMessageDialog(btnAdd, "Cập nhật thành công!");
 	        		
 	        		BookManagerPanel.getBookList();
+	        		LoanPanel.getBookAvailable();
 	        	}
 			}
 		});

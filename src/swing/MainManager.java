@@ -13,6 +13,7 @@ import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -21,8 +22,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 
 import database.Dao;
+import model.Book;
 
 public class MainManager extends JPanel {
 	JButton btnManaBook, btnLoan, btnThongke;
@@ -31,7 +34,7 @@ public class MainManager extends JPanel {
 	int dangMuon = 0;
 	
 	Connection conn;
-	Dao dao;
+	static Dao dao;
 	
 	MainManager(MainApp mainApp) {
 		connectToDatabase();

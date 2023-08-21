@@ -9,10 +9,6 @@ public class Loan {
 	private Date loanDate;
 	private Date dueDate;
 
-	public Loan() {
-		super();
-	}
-
 	public Loan(int loanID, User userID, Book bookID, Date loanDate, Date dueDate) {
 		super();
 		this.loanID = loanID;
